@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title> 우주 모험 게임 </title>
+  <link rel="stylesheet" href="StyleForProject.css">
+</head>
+<body>
+
+    <a href="index.html"><img src="banner6.png"  width="1450px"></a>
+
+  <div id="grid">
+      <ol id="indexline">
+        <li><a href="C1.html" class="indexleft"> 영문 타자연습 </a>  </li>
+        <li><a href="C2.html" class="indexleft"> 가위바위보 포인트게임 </a> </li>
+        <li><a href="C3.html" class="indexleft"> 베스킨라빈스31 게임 </a> </li>
+        <li><a href="P1.html" class="indexleft"> 선택정렬과 이진탐색 </a> </li>
+        <li><a href="P2.html" class="indexleft"> 다항함수 적분계산기 </a> </li>
+        <li><a href="P3.html" class="indexleft" id="nowHere"> 우주 모험 게임 </a> </li>
+      </ol>
+      <div id="article">
+
+       <p style="margin-top:10px;">
+         <h2>(1) 설명</h2>
+      <ol>
+      <li> 이 게임은 주인공이 떨어지는 운석과 옆에서 날아오는 방사능 막대기를 피하면서 우주의 별을 모으는 게임이다. </li>
+      <li> 상하좌우 키를 이용하여 주인공을 움직일 수 있다. </li>
+      <li> 운석에 맞으면 한번에 게임오버가 되고, 방사능 막대기에 맞으면 맞는시간에 비례하여 점수가 감소한다. 점수가 음수가 되면 게임오버가 된다. </li>
+      <li> 장애물을 피하며 별을 획득하면 점수를 얻는다. 주인공의 표정이 점수에 따라 변화한다. </li>
+      <li> 점수가 1500점 이상이 되면 1500점을 깎아 1레벨을 올릴 수 있다. 주인공의 레벨이 올라갈수록 별의 점수가 증가한다. (별의 최대 점수: 200점) </li>
+      <li> 주인공의 레벨이 1부터 6까지일때 레벨이 올라갈수록 운석의 떨어지는 속도가 증가한다. </li>
+      <li> 주인공의 레벨이 7이상이면 방사능 막대기가 빨간색으로 변하며 레벨이 올라갈수록 방사능 막대기의 속도가 증가한다. </li>
+      <li> 장애물을 피해 별을 획득하여 주인공의 레벨을 최대로 높이는 것이 이 게임의 목표이다. </li>
+
+    </ol>
+       </p>
+       <p style="margin-top:50px;">
+         <h2> (2) 실행결과 </h2>
+         <iframe width="560" height="315" src="https://www.youtube.com/embed/Im-vbg8TYoo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+       </p>
+
+        <p style="margin-top:50px;">
+        <h2>  (3) 코드 </h2>
+        <div id="textarea">
+          <textarea cols="100%" rows="40px" style="﻿overflow-y:scroll; overflow-x:hidden; resize: none;">
+import pygame
+import random
+import os
+
+pygame.init()
+
+#화면 크기
+screen_width = 640
+screen_height = 640
+screen = pygame.display.set_mode((screen_width, screen_height))
+
+# 타이틀
+pygame.display.set_caption("Star In Space")
+
+#FPS 설정을 위한 시계
+clock = pygame.time.Clock()
+
+# 경로 설정
+current_path = os.path.dirname(__file__) #현재 파일의 위치 반환
+image_path = os.path.join(current_path, "images") #images 폴더 위치 반환
+
+# 이미지 불러오기
+background = pygame.image.load(os.path.join(image_path, "background.jpg"))
+state = pygame.image.load(os.path.join(image_path, "state.jpg"))
+state_height = state.get_rect().size [1]
+
+# 주인공
+character = pygame.image.load(os.path.join(image_path, "character1.png"))
+character_size = character.get_rect().size
+character_width = character_size[0]
+character_height = character_size[1]
+character_x_pos = (screen_width ) - (character_width / 2)
+character_y_pos = (screen_height) - (character_height / 2)
+character_speed = 0.5
+
+# 적1
+enemy1 = pygame.image.load(os.path.join(image_path, "enemy1.png"))
+enemy1_size = enemy1.get_rect().size
+enemy1_width = enemy1_size[0]
+enemy1_height = enemy1_size[1]
+enemy1_x_pos = random.randrange(0, screen_width - enemy1_width)
+enemy1_y_pos = -(enemy1_height)
+
+# 적2
+enemy2 = pygame.image.load(os.path.join(image_path, "enemy2.png"))
+enemy2_size = enemy2.get_rect().size
+enemy2_width = enemy2_size[0]
+enemy2_height = enemy2_size[1]
+enemy2_x_pos = -(enemy2_width)
+enemy2_y_pos = random.randrange(state_height, screen_height - enemy2_height)
+
+# 포인트(별)
+point = pygame.image.load(os.path.join(image_path, "point.png"))
+point_size = point.get_rect().size
+point_width = point_size[0]
+point_height = point_size[1]
+point_x_pos = random.randrange(0, screen_width - point_width)
+point_y_pos = random.randrange(state_height, screen_height - point_height)
+
+# 주인공 이동속도
+to_left = 0
+to_right = 0
+to_up = 0
+to_down = 0
+
+# 적 이동속도
+to_down_enemy1 = 0.2 # 적1 초기속도
+to_right_enemy2 = 0.2 # 적2 초기속도
+
+# 점수, 레벨, 레벨컷
+score = 0
+total_score = 0
+level = 1
+mini_level_1 = 500
+mini_level_2 = 1000
+mini_level_3 = 1500
+
+# 폰트 정보
+game_font = pygame.font.SysFont("한컴말랑말랑", 30)
+small_font = pygame.font.SysFont("한컴말랑말랑", 12)
+
+# 시작 시각 정보
+start_ticks = pygame.time.get_ticks()
+
+# 이벤트 반복
+running = True
+while running:
+    dt = clock.tick(60) # FPS
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_LEFT:
+                to_left -= character_speed
+
+            elif event.key == pygame.K_RIGHT:
+                to_right += character_speed
+
+            elif event.key == pygame.K_UP:
+                to_up -= character_speed
+
+            elif event.key == pygame.K_DOWN:
+                to_down += character_speed
+
+            elif event.key == pygame.K_SPACE:
+                if (score >= mini_level_3): # 1500점 이상일 때 스페이스 누르면
+                    score -= mini_level_3   # 1500점 깎고
+                    level += 1              # 레벨업
+
+                    if (1 <= level < 7):
+                        to_down_enemy1 += 0.05  # 1레벨 ~ 6레벨은 적1 속도 증가
+                    elif (level >= 7):
+                        to_right_enemy2 += 0.05 # 7레벨 이상은 적2 속도 증가
+
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_LEFT:
+                to_left = 0
+
+            elif event.key == pygame.K_RIGHT:
+                to_right = 0
+
+            elif event.key == pygame.K_UP:
+                to_up = 0
+
+            elif event.key == pygame.K_DOWN:
+                to_down = 0
+
+    character_x_pos += (to_left + to_right) * dt    # x좌표 변화
+    character_y_pos += (to_up + to_down) * dt       # y좌표 변화
+
+    enemy1_y_pos += to_down_enemy1 *dt              # 적1의 y좌표 변화
+    enemy2_x_pos += to_right_enemy2 *dt             # 적2의 x좌표 변화
+
+    if character_x_pos < 0: # 화면 왼쪽 끝 넘어가면 더이상 안움직임
+        character_x_pos = 0
+    elif character_x_pos > screen_width - character_width: # 화면 오른쪽 끝 넘어가면 더이상 안움직임
+        character_x_pos = screen_width - character_width
+
+    if character_y_pos < state_height: # 화면 위쪽 끝 넘어가면 더이상 안움직임
+        character_y_pos = state_height
+    elif character_y_pos > screen_height - character_height: # 화면 위쪽 끝 넘어가면 더이상 안움직임
+        character_y_pos = screen_height - character_height
+
+    # 적의 움직임 (등속 운동)
+    if enemy1_y_pos > screen_height:
+        enemy1_y_pos = -(enemy1_height)
+        enemy1_x_pos = random.randrange(0, screen_width - enemy1_width)
+
+    if enemy2_x_pos > screen_width:
+        enemy2_x_pos = -(enemy2_width)
+        enemy2_y_pos = random.randrange(state_height, screen_height - enemy2_height)
+
+    # 별 레벨 조정
+    star_level = small_font.render("Yellow Star (100)", True, (255, 255, 255))
+
+    if (level == 2):
+        point = pygame.image.load(os.path.join(image_path, "point2.png"))
+        star_level = small_font.render("Pink Star (120)", True, (255, 255, 255))
+    elif (level == 3):
+        point = pygame.image.load(os.path.join(image_path, "point3.png"))
+        star_level = small_font.render("Green Star (140)", True, (255, 255, 255))
+    elif (level == 4):
+        point = pygame.image.load(os.path.join(image_path, "point4.png"))
+        star_level = small_font.render("Blue Star (160)", True, (255, 255, 255))
+    elif (level == 5):
+        point = pygame.image.load(os.path.join(image_path, "point5.png"))
+        star_level = small_font.render("Purple Star (180)", True, (255, 255, 255))
+    elif (level == 6):
+        point = pygame.image.load(os.path.join(image_path, "point6.png"))
+        star_level = small_font.render("Red Star (200)", True, (255, 255, 255))
+    elif (level >= 7):
+        point = pygame.image.load(os.path.join(image_path, "point7.png"))
+        star_level = small_font.render("Rainbow Star (200)", True, (255, 0, 0))
+        enemy2 = pygame.image.load(os.path.join(image_path, "enemy2up.png"))
+
+    # 네모 처리
+    character_rect = character.get_rect()
+    character_rect.left = character_x_pos
+    character_rect.top = character_y_pos
+
+    enemy1_rect = enemy1.get_rect()
+    enemy1_rect.left = enemy1_x_pos
+    enemy1_rect.top = enemy1_y_pos
+
+    enemy2_rect = enemy2.get_rect()
+    enemy2_rect.left = enemy2_x_pos
+    enemy2_rect.top = enemy2_y_pos
+
+    point_rect = point.get_rect()
+    point_rect.left = point_x_pos
+    point_rect.top = point_y_pos
+
+    # 운석 충돌 체크
+    if character_rect.colliderect(enemy1_rect):
+        character = pygame.image.load(os.path.join(image_path, "character0.png"))
+        running = False
+
+    # 별 획득 체크
+    if character_rect.colliderect(point_rect):
+        point_x_pos = random.randrange(0, screen_width - point_width)
+        point_y_pos = random.randrange(state_height, screen_height - point_height)
+
+        if (level <= 6):
+            score += (100  + 20*(level-1))  # 100, 120, 140, 160, 180, 200
+        else:
+            score += 200 # 7레벨 이상은 200점 고정
+
+    # 캐릭터 표정 변화 (방사능 막대기 닿을 때도 각각 추가)
+    if (score < 0):
+        character = pygame.image.load(os.path.join(image_path, "character0.png"))
+        running = False
+
+    if (0 <= score < mini_level_1):
+        character = pygame.image.load(os.path.join(image_path, "character1.png"))
+        if character_rect.colliderect(enemy2_rect):
+            character = pygame.image.load(os.path.join(image_path, "character_radioactive.png"))
+            screen.blit(character, (character_x_pos, character_y_pos))
+            pygame.display.update()
+            score -= round((0.3 * dt * level), 1)
+            score = round(score, 0)
+            score = int(score)
+
+    elif (mini_level_1 <= score <mini_level_2):
+        character = pygame.image.load(os.path.join(image_path, "character2.png"))
+        if character_rect.colliderect(enemy2_rect):
+            character = pygame.image.load(os.path.join(image_path, "character_radioactive.png"))
+            screen.blit(character, (character_x_pos, character_y_pos))
+            pygame.display.update()
+            score -= round((0.3 * dt * level), 1)
+            score = round(score, 0)
+            score = int(score)
+
+    elif (mini_level_2 <= score < mini_level_3):
+        character = pygame.image.load(os.path.join(image_path, "character3.png"))
+        if character_rect.colliderect(enemy2_rect):
+            character = pygame.image.load(os.path.join(image_path, "character_radioactive.png"))
+            screen.blit(character, (character_x_pos, character_y_pos))
+            pygame.display.update()
+            score -= round((0.3 * dt * level), 1)
+            score = round(score, 0)
+            score = int(score)
+
+    elif (score >= mini_level_3):
+        character = pygame.image.load(os.path.join(image_path, "character4.png"))
+        if character_rect.colliderect(enemy2_rect):
+            character = pygame.image.load(os.path.join(image_path, "character_radioactive.png"))
+            screen.blit(character, (character_x_pos, character_y_pos))
+            pygame.display.update()
+            score -= round((0.3 * dt * level), 1)
+            score = round(score, 0)
+            score = int(score)
+
+    else:
+        character = pygame.image.load(os.path.join(image_path, "character0.png"))
+
+    # 화면 출력
+
+    screen.blit(background, (0, 0))
+
+    screen.blit(point, (point_x_pos, point_y_pos))
+    screen.blit(enemy1, (enemy1_x_pos, enemy1_y_pos))
+    screen.blit(enemy2, (enemy2_x_pos, enemy2_y_pos))
+
+    screen.blit(state, (0, 0))
+    screen.blit(character, (character_x_pos, character_y_pos))
+
+    # 플레이 타임
+    elapsed_time = (pygame.time.get_ticks() - start_ticks) / 1000
+
+    # 타이머, 점수, 레벨 상태표시
+    timer = game_font.render(str(int(elapsed_time)), True, (255, 255, 255))
+    time_state = game_font.render("Time: ", True, (255, 255, 255))
+
+    score_state = game_font.render(str(score), True, (255, 255, 255))
+    score_state_name = game_font.render("Score: ", True, (255, 255, 255))
+
+    level_state = game_font.render(str(level), True, (255, 255, 255))
+    level_state_name = game_font.render("Level: ", True, (255, 255, 255))
+
+    screen.blit(time_state, (10, 5))
+    screen.blit(timer, (96, 6))
+    screen.blit(score_state_name, (220, 5))
+    screen.blit(score_state, (320, 5))
+    screen.blit(level_state_name, (480, 5))
+    screen.blit(level_state, (580, 5))
+    screen.blit(star_level, (10 , 55))
+
+    pygame.display.update() # 게임화면을 다시 그리기
+
+# 게임 종료
+character = pygame.image.load(os.path.join(image_path, "character0.png"))
+screen.blit(character, (character_x_pos, character_y_pos))
+game_exit = game_font.render("Game Over. 잠시 후 자동 종료됩니다.", True, (255, 255, 255))
+
+screen.blit(game_exit, (screen_width/2 - 220, screen_height/2))
+pygame.display.update()
+pygame.time.delay(3000) # 3초 후 종료
+
+          </textarea>
+</div>
+
+
+    </div>
+  </div>
+
+ </body>
+</html>
